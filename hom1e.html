@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Baku Parks, Your Location, and Trash Bins</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOVYRIgupAurZup5y1PRh8Ismb1A3lLao&libraries=places&callback=initMap" async defer></script>
+    <style>
+      #map {
+        height: 100%;
+        width: 100%;
+      }
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script>
+      let map, userMarker;
+
+      // Array of updated park locations in Baku
+      const parks = [
+        { name: "Heydar Aliyev Park", location: { lat: 40.3819956, lng: 49.8496956 } },
+        { name: "Highland Park", location: { lat: 40.3576252, lng: 49.8288208 } },
+        { name: "Baku Boulevard", location: { lat: 40.37059532314443, lng: 49.851102458335745 } },
+        { name: "Dede Qorqud Park", location: { lat: 40.392534267120055, lng: 49.84664524679499 } },
+        { name: "Zabitler Park", location: { lat: 40.38514553889608, lng: 49.83627509972107 } },
+        { name: "Ataturk Park", location: { lat: 40.40370235724592, lng: 49.849965545677875 } },
+        { name: "Winter Park", location: { lat: 40.3763665, lng: 49.8377561 } },
+        { name: "Central Park", location: { lat: 40.37536154756189, lng: 49.824753434695666 } },
+        { name: "Huseyn Javid Park", location: { lat: 40.37354702632923, lng: 49.817436368609116 } },
+        { name: "Koroghlu Park", location: { lat: 40.391893104083614, lng: 49.84283661545116 } },
+        { name: "Zorge Park", location: { lat: 40.39073922381325, lng: 49.838055410032766 } } 
+      ];
+
+      // Updated trash bin locations
+      const trashBins = [
+      { name: "Trash Bin 1", location: { lat: 40.4025455, lng: 49.8709679 } },
+        { name: "Trash Bin 2", location: { lat: 40.4024863, lng: 49.8708311 } },
+        { name: "Trash Bin 3", location: { lat: 40.4024076, lng: 49.8709062 } },
+        { name: "Trash Bin 4", location: { lat: 40.4024607, lng: 49.8710389 } },
+        { name: "Trash Bin 5", location: { lat: 40.4007056, lng: 49.8720517 } },
+        { name: "Trash Bin 6", location: { lat: 40.4014629, lng: 49.8507939 } },
+        { name: "Trash Bin 7", location: { lat: 40.4015110, lng: 49.8508086 } },
+        { name: "Trash Bin 8", location: { lat: 40.4015416, lng: 49.8507684 } },
+        { name: "Trash Bin 9", location: { lat: 40.3670410, lng: 49.8418450 } },
+        { name: "Trash Bin 10", location: { lat: 40.3927032, lng: 49.8467396 } },
+        { name: "Trash Bin 11", location: { lat: 40.3762350, lng: 49.8395900 } },
+        { name: "Trash Bin 12", location: { lat: 40.3857000, lng: 49.8435000 } },
+        { name: "Trash Bin 13", location: { lat: 40.3789300, lng: 49.8531450 } },
+        { name: "Trash Bin 14", location: { lat: 40.3708730, lng: 49.8408910 } },
+        { name: "Trash Bin 15", location: { lat: 40.4012260, lng: 49.8531200 } },
+        { name: "Trash Bin 16", location: { lat: 40.3881700, lng: 49.8468950 } },
+        { name: "Trash Bin 17", location: { lat: 40.3808820, lng: 49.8393010 } },
+        { name: "Trash Bin 18", location: { lat: 40.4023050, lng: 49.8454440 } },
+        { name: "Trash Bin 19", location: { lat: 40.3910170, lng: 49.8327020 } },
+        { name: "Trash Bin 20", location: { lat: 40.4071030, lng: 49.8508670 } },
+        { name: "Trash Bin 21", location: { lat: 40.3678900, lng: 49.8434300 } },
+        { name: "Trash Bin 22", location: { lat: 40.3733300, lng: 49.8590600 } },
+        { name: "Trash Bin 23", location: { lat: 40.3875300, lng: 49.8433300 } },
+        { name: "Trash Bin 24", location: { lat: 40.3951300, lng: 49.8538000 } },
+        { name: "Trash Bin 25", location: { lat: 40.3921000, lng: 49.8567800 } },
+        { name: "Trash Bin 26", location: { lat: 40.3887700, lng: 49.8486700 } },
+        { name: "Trash Bin 27", location: { lat: 40.3750000, lng: 49.8376000 } },
+        { name: "Trash Bin 28", location: { lat: 40.3784000, lng: 49.8525000 } },
+        { name: "Trash Bin 29", location: { lat: 40.3883000, lng: 49.8411000 } },
+        { name: "Trash Bin 30", location: { lat: 40.3981800, lng: 49.8629900 } },
+        { name: "Trash Bin 31", location: { lat: 40.3993000, lng: 49.8724000 } },
+        { name: "Trash Bin 32", location: { lat: 40.4026000, lng: 49.8709000 } },
+        { name: "Trash Bin 33", location: { lat: 40.3875000, lng: 49.8560000 } },
+        { name: "Trash Bin 34", location: { lat: 40.3915000, lng: 49.8497000 } },
+        { name: "Trash Bin 35", location: { lat: 40.4030200, lng: 49.8467700 } },
+        { name: "Trash Bin 36", location: { lat: 40.3970000, lng: 49.8650000 } },
+        { name: "Trash Bin 37", location: { lat: 40.3918000, lng: 49.8556000 } },
+        { name: "Trash Bin 38", location: { lat: 40.3990000, lng: 49.8426000 } },
+        { name: "Trash Bin 39", location: { lat: 40.3845000, lng: 49.8344000 } },
+        { name: "Trash Bin 40", location: { lat: 40.3862000, lng: 49.8355000 } },
+        { name: "Trash Bin 41", location: { lat: 40.4018000, lng: 49.8340000 } },
+        { name: "Trash Bin 42", location: { lat: 40.4060000, lng: 49.8600000 } },
+        { name: "Trash Bin 43", location: { lat: 40.3929000, lng: 49.8456000 } },
+        { name: "Trash Bin 44", location: { lat: 40.4049000, lng: 49.8700000 } },
+        { name: "Trash Bin 45", location: { lat: 40.3776000, lng: 49.8379000 } },
+        { name: "Trash Bin 46", location: { lat: 40.3713000, lng: 49.8516000 } },
+        { name: "Trash Bin 47", location: { lat: 40.3920000, lng: 49.8488000 } },
+        { name: "Trash Bin 48", location: { lat: 40.3739000, lng: 49.8453000 } },
+        { name: "Trash Bin 49", location: { lat: 40.3923000, lng: 49.8590000 } },
+        { name: "Trash Bin 50", location: { lat: 40.3768000, lng: 49.8506000 } },
+    ];
+
+      function initMap() {
+        // Create the map, centered on Baku
+        map = new google.maps.Map(document.getElementById("map"), {
+          center: { lat: 40.4093, lng: 49.8671 }, // Center on Baku
+          zoom: 12
+        });
+
+        // Add markers for parks with a custom green marker
+        const parkIcon = {
+          url: "http://maps.google.com/mapfiles/ms/icons/green-dot.png" // Green marker for parks
+        };
+
+        parks.forEach(park => {
+          const marker = new google.maps.Marker({
+            position: park.location,
+            map: map,
+            title: park.name,
+            icon: parkIcon // Set park icon to green
+          });
+
+          // Info window to display park name
+          const infoWindow = new google.maps.InfoWindow({
+            content: `<h3>${park.name}</h3>`
+          });
+
+          marker.addListener("click", () => {
+            infoWindow.open(map, marker);
+          });
+        });
+
+        // Add markers for trash bins with a custom blue icon
+        const trashBinIcon = {
+          url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png" // Blue marker for trash bins
+        };
+
+        trashBins.forEach(trashBin => {
+          const trashBinMarker = new google.maps.Marker({
+            position: trashBin.location,
+            map: map,
+            title: trashBin.name,
+            icon: trashBinIcon // Set trash bin icon to blue
+          });
+
+          // Add info window for each trash bin
+          const trashInfoWindow = new google.maps.InfoWindow({
+            content: `<h3>${trashBin.name}</h3>`
+          });
+
+          trashBinMarker.addListener("click", () => {
+            trashInfoWindow.open(map, trashBinMarker);
+          });
+        });
+
+        // Try HTML5 geolocation to get user location
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const userLocation = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude
+              };
+
+              // Center map on user's location
+              map.setCenter(userLocation);
+
+              // Add a red marker for the user's location
+              const userIcon = {
+                url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png" // Red marker for user's location
+              };
+
+              userMarker = new google.maps.Marker({
+                position: userLocation,
+                map: map,
+                title: "Your Location",
+                icon: userIcon // Set user icon to red
+              });
+
+              // Real-time location tracking
+              trackLocation();
+            },
+            () => {
+              handleLocationError(true, map.getCenter());
+            }
+          );
+        } else {
+          // Browser doesn't support Geolocation
+          handleLocationError(false, map.getCenter());
+        }
+      }
+
+      // Track user location in real-time
+      function trackLocation() {
+        navigator.geolocation.watchPosition(
+          (position) => {
+            const newLocation = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+            };
+
+            // Update the position of the user's marker
+            userMarker.setPosition(newLocation);
+            map.setCenter(newLocation); // Optional: Re-center map on new location
+          },
+          (error) => {
+            console.log("Error tracking location: ", error);
+          },
+          {
+            enableHighAccuracy: true, // High accuracy for real-time location updates
+            maximumAge: 0,
+            timeout: 5000
+          }
+        );
+      }
+
+      // Handle geolocation errors
+      function handleLocationError(browserHasGeolocation, pos) {
+        const infoWindow = new google.maps.InfoWindow({
+          map: map
+        });
+        infoWindow.setPosition(pos);
+        infoWindow.setContent(
+          browserHasGeolocation
+            ? "Error: The Geolocation service failed."
+            : "Error: Your browser doesn't support geolocation."
+        );
+      }
+    </script>
+  </body>
+</html>
