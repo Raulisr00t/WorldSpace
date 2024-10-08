@@ -16,8 +16,8 @@ app.secret_key = 'secret_key'
 # Gmail SMTP server configuration
 SMTP_SERVER = 'smtp.gmail.com'
 SMTP_PORT = 587
-SMTP_USERNAME = 'yashmaisr00t@gmail.com'
-SMTP_PASSWORD = 'omggdilmuvbludpv'
+SMTP_USERNAME = 'yourgmail@gmail.com'
+SMTP_PASSWORD = 'YOUR Password'
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
